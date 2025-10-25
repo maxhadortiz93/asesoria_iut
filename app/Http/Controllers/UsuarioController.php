@@ -10,18 +10,21 @@ use Illuminate\Validation\Rule;
 class UsuarioController extends Controller
 {
     /**
-     * Listar todos los usuarios.
+     * Listar usuarios con opción de búsqueda por nombre.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // Incluimos la relación con rol para evitar N+1
-        $usuarios = Usuario::with('rol')->paginate(10);
+        $usuarios = Usuario::with('rol')
+            ->when($request->filled('nombre'), function ($query) use ($request) {
+                $query->where('nombre', 'like', '%' . $request->nombre . '%');
+            })
+            ->paginate(10);
 
         return response()->json($usuarios);
     }
 
     /**
-     * Guardar un nuevo usuario.
+     * Crear un nuevo usuario.
      */
     public function store(Request $request)
     {
@@ -34,7 +37,6 @@ class UsuarioController extends Controller
             'activo'        => ['boolean'],
         ]);
 
-        // Hashear la contraseña antes de guardar
         $validated['hash_password'] = Hash::make($validated['hash_password']);
 
         $usuario = Usuario::create($validated);
@@ -43,7 +45,7 @@ class UsuarioController extends Controller
     }
 
     /**
-     * Mostrar un usuario específico.
+     * Mostrar detalles de un usuario.
      */
     public function show(Usuario $usuario)
     {
@@ -53,30 +55,25 @@ class UsuarioController extends Controller
     }
 
     /**
-     * Actualizar un usuario.
+     * Actualizar datos de un usuario.
      */
     public function update(Request $request, Usuario $usuario)
     {
         $validated = $request->validate([
             'rol_id'        => ['sometimes', 'exists:roles,id'],
             'cedula'        => [
-                'sometimes',
-                'string',
-                'max:20',
+                'sometimes', 'string', 'max:20',
                 Rule::unique('usuarios', 'cedula')->ignore($usuario->id),
             ],
             'nombre'        => ['sometimes', 'string', 'max:255'],
             'correo'        => [
-                'sometimes',
-                'email',
-                'max:255',
+                'sometimes', 'email', 'max:255',
                 Rule::unique('usuarios', 'correo')->ignore($usuario->id),
             ],
             'hash_password' => ['nullable', 'string', 'min:8'],
             'activo'        => ['boolean'],
         ]);
 
-        // Si se envía una nueva contraseña, la hasheamos
         if (!empty($validated['hash_password'])) {
             $validated['hash_password'] = Hash::make($validated['hash_password']);
         }
@@ -96,3 +93,4 @@ class UsuarioController extends Controller
         return response()->json(null, 204);
     }
 }
+

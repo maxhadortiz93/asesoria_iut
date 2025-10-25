@@ -2,20 +2,20 @@
 
 namespace App\Models;
 
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
-class Usuario extends Model
+class Usuario extends Authenticatable
 {
     use HasFactory;
 
     /**
-     * Nombre de la tabla asociada.
+     * Tabla personalizada para el modelo de autenticación.
      */
     protected $table = 'usuarios';
 
     /**
-     * Atributos que se pueden asignar de forma masiva.
+     * Atributos que pueden ser asignados masivamente.
      */
     protected $fillable = [
         'rol_id',
@@ -27,21 +27,37 @@ class Usuario extends Model
     ];
 
     /**
-     * Atributos que deben ocultarse en arrays o JSON.
+     * Atributos ocultos en serializaciones.
      */
     protected $hidden = [
         'hash_password',
     ];
 
     /**
-     * Conversión de tipos para atributos.
+     * Casts automáticos para atributos.
      */
     protected $casts = [
         'activo' => 'boolean',
     ];
 
     /**
-     * Relación: Un usuario pertenece a un rol.
+     * Laravel usará este campo como contraseña.
+     */
+    public function getAuthPassword()
+    {
+        return $this->hash_password;
+    }
+
+    /**
+     * Laravel usará este campo como identificador de login.
+     */
+    public function getAuthIdentifierName()
+    {
+        return 'correo';
+    }
+
+    /**
+     * Relación: Usuario pertenece a un Rol.
      */
     public function rol()
     {
@@ -49,7 +65,7 @@ class Usuario extends Model
     }
 
     /**
-     * Relación: Un usuario tiene muchos reportes.
+     * Relación: Usuario tiene muchos Reportes.
      */
     public function reportes()
     {
@@ -57,10 +73,13 @@ class Usuario extends Model
     }
 
     /**
-     * Relación: Un usuario tiene muchos movimientos.
+     * Relación: Usuario tiene muchos Movimientos.
      */
     public function movimientos()
     {
         return $this->hasMany(Movimiento::class);
     }
 }
+
+
+
