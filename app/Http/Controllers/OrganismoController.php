@@ -17,6 +17,13 @@ class OrganismoController extends Controller
     return view('organismos.index', compact('organismos'));
 }
 
+    /**
+     * Mostrar formulario para crear organismo.
+     */
+    public function create()
+    {
+        return view('organismos.create');
+    }
 
     /**
      * Guardar un nuevo organismo.
@@ -30,7 +37,7 @@ class OrganismoController extends Controller
 
         $organismo = Organismo::create($validated);
 
-        return response()->json($organismo, 201);
+        return redirect()->route('organismos.index')->with('success', 'Organismo creado correctamente');
     }
 
     /**
