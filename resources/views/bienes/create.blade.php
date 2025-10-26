@@ -12,9 +12,9 @@
 
                 <!-- Dependencia -->
                 <div>
-                    <label for="dependencia_id" class="block text-sm font-medium text-gray-700">Dependencia</label>
+                    <label for="dependencia_id" class="block text-sm font-semibold text-gray-700 mb-2">Dependencia</label>
                     <select name="dependencia_id" id="dependencia_id"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
                         <option value="">Seleccione...</option>
                         @foreach($dependencias as $dep)
                             <option value="{{ $dep->id }}" {{ old('dependencia_id') == $dep->id ? 'selected' : '' }}>
@@ -29,9 +29,9 @@
 
                 <!-- Responsable -->
                 <div>
-                    <label for="responsable_id" class="block text-sm font-medium text-gray-700">Responsable</label>
+                    <label for="responsable_id" class="block text-sm font-semibold text-gray-700 mb-2">Responsable</label>
                     <select name="responsable_id" id="responsable_id"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
                         <option value="">Seleccione...</option>
                         @foreach($responsables as $resp)
                             <option value="{{ $resp->id }}" {{ old('responsable_id') == $resp->id ? 'selected' : '' }}>
@@ -46,9 +46,10 @@
 
                 <!-- Código -->
                 <div>
-                    <label for="codigo" class="block text-sm font-medium text-gray-700">Código</label>
+                    <label for="codigo" class="block text-sm font-semibold text-gray-700 mb-2">Código</label>
                     <input type="text" name="codigo" id="codigo" value="{{ old('codigo') }}"
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                           placeholder="Ej: BN-001">
                     @error('codigo')
                         <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                     @enderror
@@ -56,9 +57,10 @@
 
                 <!-- Descripción -->
                 <div>
-                    <label for="descripcion" class="block text-sm font-medium text-gray-700">Descripción</label>
+                    <label for="descripcion" class="block text-sm font-semibold text-gray-700 mb-2">Descripción</label>
                     <textarea name="descripcion" id="descripcion" rows="3"
-                              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">{{ old('descripcion') }}</textarea>
+                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                              placeholder="Describe el bien...">{{ old('descripcion') }}</textarea>
                     @error('descripcion')
                         <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                     @enderror
@@ -66,9 +68,10 @@
 
                 <!-- Ubicación -->
                 <div>
-                    <label for="ubicacion" class="block text-sm font-medium text-gray-700">Ubicación</label>
+                    <label for="ubicacion" class="block text-sm font-semibold text-gray-700 mb-2">Ubicación</label>
                     <input type="text" name="ubicacion" id="ubicacion" value="{{ old('ubicacion') }}"
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                           placeholder="Oficina 101">
                     @error('ubicacion')
                         <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                     @enderror
@@ -76,9 +79,9 @@
 
                 <!-- Estado -->
                 <div>
-                    <label for="estado" class="block text-sm font-medium text-gray-700">Estado</label>
+                    <label for="estado" class="block text-sm font-semibold text-gray-700 mb-2">Estado</label>
                     <select name="estado" id="estado"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
                         <option value="">Seleccione...</option>
                         @foreach(\App\Enums\EstadoBien::cases() as $estado)
                             <option value="{{ $estado->value }}" {{ old('estado') == $estado->value ? 'selected' : '' }}>
@@ -93,20 +96,33 @@
 
                 <!-- Fecha de registro -->
                 <div>
-                    <label for="fecha_registro" class="block text-sm font-medium text-gray-700">Fecha de Registro</label>
-                    <input type="date" name="fecha_registro" id="fecha_registro" value="{{ old('fecha_registro') }}"
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                    <label for="fecha_registro" class="block text-sm font-semibold text-gray-700 mb-2">
+                        📅 Fecha de Registro
+                    </label>
+                    <div class="relative">
+                        <input type="date" name="fecha_registro" id="fecha_registro" value="{{ old('fecha_registro', now()->format('Y-m-d')) }}"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                               style="font-size: 16px;">
+                        <span class="absolute right-3 top-3 text-gray-400 pointer-events-none">
+                            📆
+                        </span>
+                    </div>
                     @error('fecha_registro')
-                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                        <p class="text-red-600 text-sm mt-2">{{ $message }}</p>
                     @enderror
+                    <p class="text-gray-500 text-xs mt-2">Selecciona la fecha en la que se registró el bien</p>
                 </div>
 
                 <!-- Botones -->
-                <div class="flex justify-end space-x-3">
+                <div class="flex justify-end gap-4 pt-6 border-t border-gray-200">
                     <a href="{{ route('bienes.index') }}"
-                       class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">Cancelar</a>
+                       class="px-6 py-3 bg-gray-300 text-gray-800 font-semibold rounded-lg hover:bg-gray-400 transition duration-200">
+                        ✗ Cancelar
+                    </a>
                     <button type="submit"
-                            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Guardar</button>
+                            class="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-lg hover:shadow-lg transition duration-200">
+                        ✓ Guardar Bien
+                    </button>
                 </div>
             </form>
         </div>
