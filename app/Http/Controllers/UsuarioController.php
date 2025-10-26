@@ -20,7 +20,7 @@ class UsuarioController extends Controller
             })
             ->paginate(10);
 
-        return response()->json($usuarios);
+        return view('usuarios.index', compact('usuarios'));
     }
 
     /**
