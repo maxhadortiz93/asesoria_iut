@@ -31,7 +31,7 @@ class DependenciaController extends Controller
 
         $dependencia = Dependencia::create($validated);
 
-        return response()->json($dependencia, 201);
+        return redirect()->route('dependencias.index')->with('success', 'Dependencia creada correctamente');
     }
 
 

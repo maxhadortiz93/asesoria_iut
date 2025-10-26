@@ -26,7 +26,9 @@ public function index()
      */
     public function create()
     {
-        return view('bienes.create');
+        $dependencias = \App\Models\Dependencia::all();
+        $responsables = \App\Models\Responsable::all();
+        return view('bienes.create', compact('dependencias', 'responsables'));
     }
 
     /**

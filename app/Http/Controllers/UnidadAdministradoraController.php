@@ -50,7 +50,7 @@ public function edit(UnidadAdministradora $unidadAdministradora)
 
         $unidad = UnidadAdministradora::create($validated);
 
-        return response()->json($unidad, 201);
+        return redirect()->route('unidades.index')->with('success', 'Unidad creada correctamente');
     }
 
     /**
