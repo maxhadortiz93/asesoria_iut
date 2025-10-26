@@ -3,70 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión</title>
+    <title>Iniciar Sesión - Inventario</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-gray-100 min-h-screen">
+<body class="bg-gradient-to-br from-blue-50 via-white to-blue-50 min-h-screen flex items-center justify-center">
+    <div class="w-full max-w-md">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-full mb-4">
+                <span class="text-2xl">🏢</span>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-900">Inventario</h1>
+            <p class="text-gray-600 mt-2">Sistema de Gestión de Bienes</p>
+        </div>
 
-    {{-- Navbar --}}
+        <!-- Login Card -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-6">
+                <h2 class="text-xl font-bold text-white">Iniciar Sesión</h2>
+            </div>
 
+            <div class="px-6 py-8">
+                <!-- Error Message -->
+                @if(session('error'))
+                    <div class="mb-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded">
+                        <p class="font-medium">Error</p>
+                        <p class="text-sm">{{ session('error') }}</p>
+                    </div>
+                @endif
 
-    <!-- Contenido principal -->
-    <main class="max-w-md mx-auto px-4 py-16">
-        <div class="bg-white shadow-md rounded-lg p-8">
-            <h1 class="text-2xl font-bold text-gray-800 mb-6 flex items-center space-x-2">
-                <x-heroicon-o-lock-closed class="w-6 h-6 text-blue-600"/>
-                <span>Iniciar Sesión</span>
-            </h1>
+                <form method="POST" action="{{ route('login') }}" class="space-y-5">
+                    @csrf
 
-            {{-- Mensaje de error --}}
-            @if(session('error'))
-                <div class="mb-4 rounded-md bg-red-100 border border-red-300 p-4 text-red-800">
-                    {{ session('error') }}
-                </div>
-            @endif
+                    <!-- Email Input -->
+                    <div>
+                        <label for="correo" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Correo Electrónico
+                        </label>
+                        <input type="email" name="correo" id="correo" value="{{ old('correo') }}"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                               placeholder="correo@ejemplo.com"
+                               required autofocus>
+                        @error('correo')
+                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
 
-            <form method="POST" action="{{ route('login') }}" class="space-y-6">
-                @csrf
+                    <!-- Password Input -->
+                    <div>
+                        <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Contraseña
+                        </label>
+                        <input type="password" name="password" id="password"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                               placeholder="••••••••"
+                               required>
+                        @error('password')
+                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
 
-                <div>
-                    <label for="correo" class="block text-sm font-medium text-gray-700">Correo electrónico</label>
-                    <input type="email" name="correo" id="correo" value="{{ old('correo') }}"
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                           required autofocus>
-                    @error('correo')
-                        <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
+                    <!-- Remember & Forgot Password -->
+                    <div class="flex items-center justify-between">
+                        <label class="flex items-center">
+                            <input type="checkbox" name="remember" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                            <span class="ml-2 text-sm text-gray-600">Recordarme</span>
+                        </label>
+                        <a href="#" class="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                            ¿Olvidaste tu contraseña?
+                        </a>
+                    </div>
 
-                <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
-                    <input type="password" name="password" id="password"
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                           required>
-                    @error('password')
-                        <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div class="flex items-center justify-between">
-                    <label class="flex items-center">
-                        <input type="checkbox" name="remember" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500">
-                        <span class="ml-2 text-sm text-gray-600">Recordarme</span>
-                    </label>
-                    <a href="#" class="text-sm text-blue-600 hover:underline">¿Olvidaste tu contraseña?</a>
-                </div>
-
-                <div>
+                    <!-- Submit Button -->
                     <button type="submit"
-                            class="w-full inline-flex justify-center items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md shadow hover:bg-blue-700 transition">
-                        <x-heroicon-o-arrow-right-on-rectangle class="w-5 h-5 mr-2"/>
+                            class="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold py-3 rounded-lg hover:shadow-lg transition duration-200 mt-6">
                         Ingresar
                     </button>
-                </div>
-            </form>
-        </div>
-    </main>
+                </form>
+            </div>
 
+            <!-- Footer -->
+            <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
+                <p class="text-center text-sm text-gray-600">
+                    © 2024 Sistema de Inventario. Todos los derechos reservados.
+                </p>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
