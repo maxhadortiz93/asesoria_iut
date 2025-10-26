@@ -1,15 +1,10 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Crear Organismo</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body>
-    @include('layouts.head')
-    <main class="max-w-2xl mx-auto px-4 py-8">
-        <div class="bg-white shadow rounded-lg p-6">
+@extends('layouts.base')
+
+@section('title', 'Crear Organismo')
+
+@section('content')
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white shadow rounded-lg p-6">
             <h1 class="text-2xl font-bold text-gray-800 mb-6">Crear Nuevo Organismo</h1>
             
             @if ($errors->any())
@@ -55,6 +50,6 @@
                 </div>
             </form>
         </div>
-    </main>
-</body>
-</html>
+    </div>
+</div>
+@endsection
