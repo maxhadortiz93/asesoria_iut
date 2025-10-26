@@ -1,38 +1,20 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bienes</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="bg-gray-100 min-h-screen">
+@extends('layouts.base')
 
-    {{-- Navbar --}}
-    @include('layouts.head')
+@section('title', 'Bienes')
 
-    <!-- Contenido principal -->
-    <main class="max-w-7xl mx-auto px-4 py-10">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-800 flex items-center space-x-2">
-                <x-heroicon-o-cube class="w-7 h-7 text-blue-600"/>
-                <span>Bienes</span>
-            </h1>
-            <a href="{{ route('bienes.create') }}"
-               class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md shadow hover:bg-blue-700 transition">
-                <x-heroicon-o-plus class="w-5 h-5 mr-1"/>
-                Nuevo Bien
-            </a>
-        </div>
+@section('content')
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold text-gray-800">📦 Bienes</h1>
+    <a href="{{ route('bienes.create') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+        + Nuevo
+    </a>
+</div>
 
-        {{-- Mensajes flash --}}
-        @if(session('status'))
-            <div class="mb-4 rounded-md bg-green-100 border border-green-300 p-4 text-green-800">
-                {{ session('status') }}
-            </div>
-        @endif
-
-        {{-- Tabla --}}
+@if(session('success'))
+    <div class="mb-4 p-4 bg-green-100 border border-green-300 text-green-800 rounded">
+        {{ session('success') }}
+    </div>
+@endif
         <div class="bg-white shadow-md rounded-lg overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
@@ -96,15 +78,12 @@
                 </table>
             </div>
 
-            {{-- Paginación --}}
-            <div class="px-6 py-4 border-t border-gray-200">
-                {{ $bienes->links() }}
-            </div>
-        </div>
-    </main>
-
-</body>
-</html>
+@if($bienes->hasPages())
+    <div class="mt-6">
+        {{ $bienes->links() }}
+    </div>
+@endif
+@endsection
 
 
 

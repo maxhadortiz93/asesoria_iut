@@ -1,36 +1,20 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unidades Administradoras</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="bg-gray-100 min-h-screen">
+@extends('layouts.base')
 
-    {{-- Navbar --}}
-    @include('layouts.head')
+@section('title', 'Unidades Administradoras')
 
-    <!-- Contenido principal -->
-    <main class="max-w-7xl mx-auto px-4 py-10">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-800 flex items-center space-x-2">
-                <x-heroicon-o-building-office class="w-7 h-7 text-blue-600"/>
-                <span>Unidades Administradoras</span>
-            </h1>
-            <a href="{{ route('unidades.create') }}"
-               class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md shadow hover:bg-blue-700 transition">
-                <x-heroicon-o-plus class="w-5 h-5 mr-1"/>
-                Nueva Unidad
-            </a>
-        </div>
+@section('content')
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold text-gray-800">🏢 Unidades Administradoras</h1>
+    <a href="{{ route('unidades.create') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+        + Nueva
+    </a>
+</div>
 
-        {{-- Mensajes flash --}}
-        @if(session('status'))
-            <div class="mb-4 rounded-md bg-green-100 border border-green-300 p-4 text-green-800">
-                {{ session('status') }}
-            </div>
-        @endif
+@if(session('success'))
+    <div class="mb-4 p-4 bg-green-100 border border-green-300 text-green-800 rounded">
+        {{ session('success') }}
+    </div>
+@endif
 
         {{-- Tabla de unidades --}}
         <div class="bg-white shadow-md rounded-lg overflow-hidden">
@@ -93,13 +77,10 @@
                 </table>
             </div>
 
-            {{-- Paginación --}}
-            <div class="px-6 py-4 border-t border-gray-200">
-                {{ $unidades->links() }}
-            </div>
-        </div>
-    </main>
-
-</body>
-</html>
+@if($unidades->hasPages())
+    <div class="mt-6">
+        {{ $unidades->links() }}
+    </div>
+@endif
+@endsection
 

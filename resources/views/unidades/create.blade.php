@@ -1,20 +1,11 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nueva Unidad Administradora</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="bg-gray-100 min-h-screen">
+@extends('layouts.base')
 
-    {{-- Navbar --}}
-    @include('layouts.head')
+@section('title', 'Crear Unidad')
 
-    <!-- Contenido principal -->
-    <main class="max-w-3xl mx-auto py-10 px-4">
-        <div class="bg-white shadow-md rounded-lg p-6">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-6">Registrar nueva Unidad Administradora</h2>
+@section('content')
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white shadow rounded-lg p-6">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">Crear Nueva Unidad Administradora</h1>
 
             <form action="{{ route('unidades.store') }}" method="POST" class="space-y-6">
                 @csrf
@@ -72,7 +63,6 @@
                 </div>
             </form>
         </div>
-    </main>
-
-</body>
-</html>
+    </div>
+</div>
+@endsection
