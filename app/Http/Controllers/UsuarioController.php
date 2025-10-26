@@ -24,7 +24,16 @@ class UsuarioController extends Controller
     }
 
     /**
-     * Crear un nuevo usuario.
+     * Mostrar formulario para crear usuario.
+     */
+    public function create()
+    {
+        $roles = \App\Models\Rol::all();
+        return view('usuarios.create', compact('roles'));
+    }
+
+    /**
+     * Guardar un nuevo usuario.
      */
     public function store(Request $request)
     {
@@ -41,7 +50,7 @@ class UsuarioController extends Controller
 
         $usuario = Usuario::create($validated);
 
-        return response()->json($usuario, 201);
+        return redirect()->route('usuarios.index')->with('success', 'Usuario creado correctamente');
     }
 
     /**
