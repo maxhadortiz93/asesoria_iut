@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Usuario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -14,14 +15,20 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = $request->only('correo', 'password');
-        $credentials['activo'] = true;
+        $request->validate([
+            'correo' => 'required|email',
+            'password' => 'required',
+        ]);
 
-        if (Auth::attempt($credentials)) {
+        $usuario = Usuario::where('correo', $request->correo)
+                          ->where('activo', true)
+                          ->first();
+
+        if ($usuario && \Hash::check($request->password, $usuario->hash_password)) {
+            Auth::login($usuario, $request->boolean('remember'));
             $request->session()->regenerate();
 
             // Redirigir según el rol
-            $usuario = Auth::user();
             switch ($usuario->rol_id) {
                 case 1:
                     return redirect()->intended('/usuarios');
@@ -33,7 +40,7 @@ class AuthController extends Controller
             }
         }
 
-        return back()->with('error', 'Credenciales inválidas')->withInput();
+        return back()->with('error', 'Las credenciales no coinciden con nuestros registros')->withInput();
     }
 
     public function logout(Request $request)
