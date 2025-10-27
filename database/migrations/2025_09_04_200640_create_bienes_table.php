@@ -21,6 +21,7 @@ return new class extends Migration {
             // ENUM con "Ñ": asegúrate de usar utf8mb4 en tu conexión
             $table->enum('estado', ['DAÑADO','ACTIVO','EN_REPARACION','EN_CAMINO','EXTRAVIADO'])
                   ->default('ACTIVO');
+            $table->timestamp('fecha_cambio_estado')->nullable();
 
             $table->timestamp('fecha_registro')->useCurrent();
             $table->timestamps();

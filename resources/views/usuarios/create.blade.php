@@ -7,6 +7,12 @@
     <div class="bg-white shadow rounded-lg p-6">
         <h1 class="text-2xl font-bold text-gray-800 mb-6">Crear Nuevo Usuario</h1>
         
+        @if(!auth()->user()->isAdmin())
+            <div class="mb-4 p-4 bg-blue-50 border-l-4 border-blue-500 text-blue-700 rounded">
+                <p class="text-sm">Solo puedes crear usuarios normales. Para crear administradores, contacta a un administrador existente.</p>
+            </div>
+        @endif
+        
         @if ($errors->any())
             <div class="mb-4 p-4 bg-red-100 border border-red-300 text-red-800 rounded">
                 <ul class="text-sm">
@@ -21,13 +27,17 @@
             @csrf
 
             <div>
-                <label for="cedula" class="block text-sm font-medium text-gray-700">Cédula</label>
+                <label for="cedula" class="block text-sm font-medium text-gray-700">Cédula (Formato: V-XX.XXX.XXX)</label>
                 <input type="text" name="cedula" id="cedula" value="{{ old('cedula') }}" 
                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                       placeholder="V-12.345.678"
+                       maxlength="20"
                        required>
+                <p class="text-xs text-gray-500 mt-1">Debe comenzar con V-, seguido de números separados por puntos</p>
                 @error('cedula')
                     <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                 @enderror
+                <p id="cedula-error" class="text-sm text-red-600 mt-1" style="display:none;"></p>
             </div>
 
             <div>
@@ -50,20 +60,8 @@
                 @enderror
             </div>
 
-            <div>
-                <label for="rol_id" class="block text-sm font-medium text-gray-700">Rol</label>
-                <select name="rol_id" id="rol_id" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
-                    <option value="">Seleccione un rol</option>
-                    @foreach($roles as $rol)
-                        <option value="{{ $rol->id }}" {{ old('rol_id') == $rol->id ? 'selected' : '' }}>
-                            {{ $rol->nombre }}
-                        </option>
-                    @endforeach
-                </select>
-                @error('rol_id')
-                    <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                @enderror
-            </div>
+            <!-- Campo rol_id oculto - se establece desde los permisos -->
+            <input type="hidden" name="rol_id" id="rol_id" value="2">
 
             <div>
                 <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
@@ -75,8 +73,48 @@
                 @enderror
             </div>
 
+            @if(auth()->user()->isAdmin())
+                <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <h3 class="text-sm font-semibold text-gray-800 mb-3">Permisos del Usuario</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-start">
+                            <input type="radio" name="user_type" id="user_type_normal" value="normal" 
+                                   class="rounded-full border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500 mt-1"
+                                   {{ old('user_type') !== 'admin' ? 'checked' : '' }}>
+                            <label for="user_type_normal" class="ml-3 block text-sm font-medium text-gray-700">
+                                <span class="font-semibold">Usuario Administrador</span>
+                                <p class="text-xs text-gray-600 font-normal mt-1">Puede gestionar usuarios y crear otros administradores. Tiene permisos totales del sistema.</p>
+                            </label>
+                        </div>
+                        <div class="flex items-start">
+                            <input type="radio" name="user_type" id="user_type_data_entry" value="data_entry" 
+                                   class="rounded-full border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500 mt-1"
+                                   {{ old('user_type') === 'data_entry' ? 'checked' : '' }}>
+                            <label for="user_type_data_entry" class="ml-3 block text-sm font-medium text-gray-700">
+                                <span class="font-semibold">Usuario Normal</span>
+                                <p class="text-xs text-gray-600 font-normal mt-1">Puede crear organismos, unidades, dependencias, bienes y movimientos. Sin permisos de gestión de usuarios.</p>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <!-- Campo oculto para enviar is_admin -->
+                <input type="hidden" name="is_admin" id="is_admin" value="1">
+            @endif
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Activo</label>
+                <div class="flex items-center">
+                    <input type="checkbox" name="activo" id="activo" value="1" 
+                           class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                           {{ old('activo', true) ? 'checked' : '' }}>
+                    <label for="activo" class="ml-2 block text-sm text-gray-700">
+                        Usuario activo
+                    </label>
+                </div>
+            </div>
+
             <div class="flex gap-4">
-                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                <button type="submit" id="guardar-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
                     Guardar
                 </button>
                 <a href="{{ route('usuarios.index') }}" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400">
@@ -86,4 +124,263 @@
         </form>
     </div>
 </div>
+
+<!-- Modal de Resultado -->
+<div id="resultado-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" style="display: none;">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+        <!-- Encabezado -->
+        <div id="modal-header" class="px-6 py-4 border-b">
+            <h2 id="modal-title" class="text-xl font-bold"></h2>
+        </div>
+        
+        <!-- Contenido -->
+        <div class="px-6 py-4">
+            <div class="flex items-start gap-4">
+                <div id="modal-icon" class="text-4xl flex-shrink-0"></div>
+                <div>
+                    <p id="modal-message" class="text-gray-700 text-sm"></p>
+                    <p id="modal-details" class="text-gray-600 text-xs mt-2" style="display: none;"></p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Botones -->
+        <div class="px-6 py-4 border-t flex gap-3 justify-end">
+            <button id="modal-close-btn" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400" onclick="cerrarModal()">
+                Cerrar
+            </button>
+            <button id="modal-redirect-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700" onclick="redirigirAListar()" style="display: none;">
+                Ir a Usuarios
+            </button>
+        </div>
+    </div>
+</div>
+
 @endsection
+
+<script>
+    const cedulaInput = document.getElementById('cedula');
+    const cedulaError = document.getElementById('cedula-error');
+
+    cedulaInput.addEventListener('input', function(e) {
+        let value = e.target.value.toUpperCase();
+        
+        // Remover caracteres que no sean V, - y números
+        value = value.replace(/[^V0-9\-]/g, '');
+        
+        // Si comienza con V, procesarlo con el formato correcto
+        if (value.startsWith('V')) {
+            // Extraer solo los números después de V
+            const numbers = value.substring(1).replace(/[^0-9]/g, '');
+            
+            if (numbers.length === 0) {
+                value = 'V-';
+            } else if (numbers.length <= 2) {
+                value = 'V-' + numbers;
+            } else if (numbers.length <= 5) {
+                value = 'V-' + numbers.substring(0, 2) + '.' + numbers.substring(2);
+            } else if (numbers.length <= 8) {
+                value = 'V-' + numbers.substring(0, 2) + '.' + numbers.substring(2, 5) + '.' + numbers.substring(5);
+            } else {
+                // Máximo 8 dígitos
+                value = 'V-' + numbers.substring(0, 2) + '.' + numbers.substring(2, 5) + '.' + numbers.substring(5, 8);
+            }
+        } else {
+            value = 'V-';
+        }
+        
+        e.target.value = value;
+        validarCedula(value);
+    });
+
+    cedulaInput.addEventListener('blur', function(e) {
+        validarCedula(e.target.value);
+    });
+
+    function validarCedula(cedula) {
+        const regex = /^V-\d{2}\.\d{3}\.\d{3}$/;
+        
+        if (cedula.trim() === '' || cedula === 'V-') {
+            cedulaError.textContent = '';
+            cedulaError.style.display = 'none';
+            return true;
+        }
+        
+        if (!regex.test(cedula)) {
+            cedulaError.textContent = 'Formato inválido. Debe ser: V-XX.XXX.XXX';
+            cedulaError.style.display = 'block';
+            return false;
+        }
+        
+        cedulaError.textContent = '';
+        cedulaError.style.display = 'none';
+        return true;
+    }
+
+    // Validar al enviar el formulario
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const cedula = cedulaInput.value;
+        if (!validarCedula(cedula)) {
+            e.preventDefault();
+            cedulaInput.focus();
+        }
+    });
+
+    // Manejar selección de tipo de usuario (solo visible para admins)
+    const userTypeRadios = document.querySelectorAll('input[name="user_type"]');
+    const isAdminInput = document.getElementById('is_admin');
+    const rolIdInput = document.getElementById('rol_id');
+
+    userTypeRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === 'normal') {
+                // Usuario Administrador
+                isAdminInput.value = '1';
+                rolIdInput.value = '1'; // ID del rol Administrador
+            } else if (this.value === 'data_entry') {
+                // Usuario Normal (Data Entry)
+                isAdminInput.value = '0';
+                rolIdInput.value = '2'; // ID del rol Usuario Normal
+            }
+        });
+    });
+
+    // Inicializar el valor según selección inicial
+    const selectedUserType = document.querySelector('input[name="user_type"]:checked');
+    if (selectedUserType && isAdminInput) {
+        if (selectedUserType.value === 'normal') {
+            isAdminInput.value = '1';
+            rolIdInput.value = '1';
+        } else if (selectedUserType.value === 'data_entry') {
+            isAdminInput.value = '0';
+            rolIdInput.value = '2';
+        }
+    }
+
+    // Habilitar botón guardar solo si todos los campos son válidos
+    const formInputs = document.querySelectorAll('form input[required], form select[required]');
+    const guardarBtn = document.getElementById('guardar-btn');
+
+    function validarFormulario() {
+        const cedula = cedulaInput.value.trim();
+        const nombre = document.getElementById('nombre').value.trim();
+        const correo = document.getElementById('correo').value.trim();
+        const password = document.getElementById('password').value.trim();
+        
+        const cedulaValida = /^V-\d{2}\.\d{3}\.\d{3}$/.test(cedula);
+        const formularioValido = nombre.length > 0 && correo.length > 0 && password.length >= 8 && cedulaValida;
+        
+        guardarBtn.disabled = !formularioValido;
+    }
+
+    // Validar al escribir
+    formInputs.forEach(input => {
+        input.addEventListener('input', validarFormulario);
+        input.addEventListener('change', validarFormulario);
+    });
+
+    // Envío del formulario
+    document.querySelector('form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const cedula = cedulaInput.value.trim();
+        if (!validarCedula(cedula)) {
+            mostrarModal('error', 'Cédula Inválida', 'El formato de la cédula no es válido. Debe ser: V-XX.XXX.XXX');
+            return;
+        }
+
+        // Mostrar modal de carga
+        mostrarModal('loading', 'Procesando...', 'Por favor espera mientras registramos al usuario.');
+
+        try {
+            const formData = new FormData(this);
+            const response = await fetch('{{ route("usuarios.store") }}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            });
+
+            if (response.ok) {
+                mostrarModal('success', '✓ Éxito', 'El usuario ha sido registrado correctamente.');
+                guardarBtn.disabled = true;
+                setTimeout(() => {
+                    redirigirAListar();
+                }, 2000);
+            } else if (response.status === 422) {
+                // Error de validación
+                const errors = await response.json();
+                let errorMsg = 'Error en los datos ingresados:\n';
+                
+                if (errors.errors.cedula) {
+                    errorMsg = errors.errors.cedula[0];
+                } else if (errors.errors.correo) {
+                    errorMsg = errors.errors.correo[0];
+                } else {
+                    errorMsg = Object.values(errors.errors).flat()[0];
+                }
+
+                mostrarModal('error', '⚠ Error de Validación', errorMsg);
+            } else if (response.status === 403) {
+                const data = await response.json();
+                mostrarModal('error', '🔒 Permiso Denegado', data.message || 'No tienes permisos para realizar esta acción.');
+            } else {
+                mostrarModal('error', '❌ Error', 'Ocurrió un error al registrar el usuario. Intenta de nuevo.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            mostrarModal('error', '❌ Error de Red', 'Hubo un problema al conectarse con el servidor.');
+        }
+    });
+
+    function mostrarModal(tipo, titulo, mensaje) {
+        const modal = document.getElementById('resultado-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalIcon = document.getElementById('modal-icon');
+        const modalMessage = document.getElementById('modal-message');
+        const modalHeader = document.getElementById('modal-header');
+        const closeBtn = document.getElementById('modal-close-btn');
+        const redirectBtn = document.getElementById('modal-redirect-btn');
+
+        modalTitle.textContent = titulo;
+        modalMessage.textContent = mensaje;
+
+        // Estilos según tipo
+        if (tipo === 'success') {
+            modalIcon.textContent = '✓';
+            modalIcon.className = 'text-4xl flex-shrink-0 text-green-500 font-bold';
+            modalHeader.className = 'px-6 py-4 border-b bg-green-50';
+            modalTitle.className = 'text-xl font-bold text-green-700';
+            closeBtn.style.display = 'none';
+            redirectBtn.style.display = 'inline-block';
+        } else if (tipo === 'error') {
+            modalIcon.textContent = '✕';
+            modalIcon.className = 'text-4xl flex-shrink-0 text-red-500 font-bold';
+            modalHeader.className = 'px-6 py-4 border-b bg-red-50';
+            modalTitle.className = 'text-xl font-bold text-red-700';
+            closeBtn.style.display = 'inline-block';
+            redirectBtn.style.display = 'none';
+        } else if (tipo === 'loading') {
+            modalIcon.textContent = '⏳';
+            modalIcon.className = 'text-4xl flex-shrink-0 text-blue-500';
+            modalHeader.className = 'px-6 py-4 border-b bg-blue-50';
+            modalTitle.className = 'text-xl font-bold text-blue-700';
+            closeBtn.style.display = 'none';
+            redirectBtn.style.display = 'none';
+        }
+
+        modal.style.display = 'flex';
+    }
+
+    function cerrarModal() {
+        document.getElementById('resultado-modal').style.display = 'none';
+    }
+
+    function redirigirAListar() {
+        window.location.href = '{{ route("usuarios.index") }}';
+    }
+
+    // Validar formulario al cargar
+    validarFormulario();
+</script>

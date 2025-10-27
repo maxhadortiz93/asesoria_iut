@@ -24,6 +24,7 @@ class Usuario extends Authenticatable
         'correo',
         'hash_password',
         'activo',
+        'is_admin',
     ];
 
     /**
@@ -38,6 +39,7 @@ class Usuario extends Authenticatable
      */
     protected $casts = [
         'activo' => 'boolean',
+        'is_admin' => 'boolean',
     ];
 
     /**
@@ -78,6 +80,56 @@ class Usuario extends Authenticatable
     public function movimientos()
     {
         return $this->hasMany(Movimiento::class);
+    }
+
+    /**
+     * Verifica si el usuario es administrador.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->is_admin === true && $this->activo === true;
+    }
+
+    /**
+     * Verifica si el usuario puede eliminar datos del sistema.
+     * Solo administradores pueden eliminar datos (excepto otros administradores).
+     */
+    public function canDeleteData(): bool
+    {
+        return $this->isAdmin();
+    }
+
+    /**
+     * Verifica si el usuario puede eliminar a otro usuario.
+     * Solo administradores pueden eliminar usuarios, pero no pueden eliminarse a sí mismos
+     * ni a otros administradores.
+     */
+    public function canDeleteUser(Usuario $userToDelete): bool
+    {
+        // El usuario debe ser administrador
+        if (!$this->canDeleteData()) {
+            return false;
+        }
+
+        // No puede eliminarse a sí mismo
+        if ($this->id === $userToDelete->id) {
+            return false;
+        }
+
+        // No puede eliminar a otro administrador
+        if ($userToDelete->isAdmin()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Verifica si el usuario puede crear nuevos administradores.
+     */
+    public function canCreateAdmin(): bool
+    {
+        return $this->isAdmin();
     }
 }
 

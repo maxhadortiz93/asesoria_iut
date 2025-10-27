@@ -37,18 +37,57 @@ class UsuarioController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'rol_id'        => ['required', 'exists:roles,id'],
-            'cedula'        => ['required', 'string', 'max:20', 'unique:usuarios,cedula'],
-            'nombre'        => ['required', 'string', 'max:255'],
-            'correo'        => ['required', 'email', 'max:255', 'unique:usuarios,correo'],
-            'hash_password' => ['required', 'string', 'min:8'],
-            'activo'        => ['boolean'],
-        ]);
+        // Solo administradores pueden crear usuarios
+        if (!auth()->user()->isAdmin()) {
+            return response()->json([
+                'message' => 'No tienes permisos para crear usuarios.',
+            ], 403);
+        }
+
+        // Obtener el rol Administrador
+        $rolAdmin = \App\Models\Rol::where('nombre', 'Administrador')->first();
+        
+        $validated = $request->validate(
+            [
+                'rol_id'        => ['required', 'exists:roles,id'],
+                'cedula'        => ['required', 'string', 'max:20', 'unique:usuarios,cedula', 'regex:/^V-\d{2}\.\d{3}\.\d{3}$/'],
+                'nombre'        => ['required', 'string', 'max:255'],
+                'correo'        => ['required', 'email', 'max:255', 'unique:usuarios,correo'],
+                'hash_password' => ['required', 'string', 'min:8'],
+                'activo'        => ['boolean'],
+                'is_admin'      => ['boolean'],
+            ],
+            [
+                'cedula.regex' => 'La cédula debe tener el formato V-XX.XXX.XXX',
+                'cedula.unique' => 'Esta cédula ya está registrada',
+                'correo.unique' => 'Este correo ya está registrado',
+            ]
+        );
+        
+        // Validar que no intente seleccionar rol de Administrador si no es admin
+        if ($rolAdmin && $validated['rol_id'] == $rolAdmin->id && !auth()->user()->isAdmin()) {
+            return response()->json([
+                'message' => 'Solo administradores pueden asignar el rol de Administrador.',
+            ], 403);
+        }
+
+        // Solo administradores pueden crear otros administradores
+        if ($request->boolean('is_admin') && !auth()->user()->isAdmin()) {
+            return response()->json([
+                'message' => 'Solo administradores pueden crear otros administradores.',
+            ], 403);
+        }
 
         $validated['hash_password'] = Hash::make($validated['hash_password']);
 
         $usuario = Usuario::create($validated);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Usuario creado correctamente',
+                'usuario' => $usuario,
+            ], 201);
+        }
 
         return redirect()->route('usuarios.index')->with('success', 'Usuario creado correctamente');
     }
@@ -68,6 +107,11 @@ class UsuarioController extends Controller
      */
     public function update(Request $request, Usuario $usuario)
     {
+        // Solo administradores pueden actualizar usuarios
+        if (!auth()->user()->canDeleteData()) {
+            return abort(403, 'No tienes permisos para actualizar usuarios.');
+        }
+
         $validated = $request->validate([
             'rol_id'        => ['sometimes', 'exists:roles,id'],
             'cedula'        => [
@@ -81,7 +125,13 @@ class UsuarioController extends Controller
             ],
             'hash_password' => ['nullable', 'string', 'min:8'],
             'activo'        => ['boolean'],
+            'is_admin'      => ['boolean'],
         ]);
+
+        // Solo administradores pueden asignar permisos de administrador
+        if (isset($validated['is_admin']) && $validated['is_admin'] && !auth()->user()->isAdmin()) {
+            return abort(403, 'Solo administradores pueden asignar permisos de administrador.');
+        }
 
         if (!empty($validated['hash_password'])) {
             $validated['hash_password'] = Hash::make($validated['hash_password']);
@@ -97,6 +147,11 @@ class UsuarioController extends Controller
      */
     public function destroy(Usuario $usuario)
     {
+        // Solo administradores pueden eliminar datos
+        if (!auth()->user()->canDeleteUser($usuario)) {
+            return abort(403, 'No tienes permisos para eliminar este usuario. No puedes eliminar administradores ni a ti mismo.');
+        }
+
         $usuario->delete();
 
         return response()->json(null, 204);

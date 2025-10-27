@@ -28,16 +28,14 @@ class AuthController extends Controller
             Auth::login($usuario, $request->boolean('remember'));
             $request->session()->regenerate();
 
-            // Redirigir según el rol
-            switch ($usuario->rol_id) {
-                case 1:
-                    return redirect()->intended('/usuarios');
-                case 2:
-                    return redirect()->intended('/bienes');
-                default:
-                    Auth::logout();
-                    return redirect()->route('login')->with('error', 'Rol no autorizado');
+            // Redirigir según el tipo de usuario
+            if ($usuario->isAdmin()) {
+                // Administrador: a gestión de usuarios
+                return redirect()->intended('/usuarios');
             }
+
+            // Usuario normal: a bienes (data entry)
+            return redirect()->intended('/bienes');
         }
 
         return back()->with('error', 'Las credenciales no coinciden con nuestros registros')->withInput();
