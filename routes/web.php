@@ -20,7 +20,10 @@ use App\Http\Controllers\UsuarioController;
 
 Route::get('/', function () {
     if (auth()->check()) {
-        return redirect()->route('usuarios.index');
+        // Administrador va a usuarios, usuario normal va a bienes
+        return auth()->user()->isAdmin() 
+            ? redirect()->route('usuarios.index')
+            : redirect()->route('bienes.index');
     }
     return redirect()->route('login');
 });

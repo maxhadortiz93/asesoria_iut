@@ -30,12 +30,10 @@ class AuthController extends Controller
 
             // Redirigir según el tipo de usuario
             if ($usuario->isAdmin()) {
-                // Administrador: a gestión de usuarios
-                return redirect()->intended('/usuarios');
+                return redirect()->intended(route('usuarios.index'));
             }
 
-            // Usuario normal: a bienes (data entry)
-            return redirect()->intended('/bienes');
+            return redirect()->intended(route('bienes.index'));
         }
 
         return back()->with('error', 'Las credenciales no coinciden con nuestros registros')->withInput();
