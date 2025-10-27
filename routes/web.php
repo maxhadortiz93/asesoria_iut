@@ -14,12 +14,22 @@ use App\Http\Controllers\UsuarioController;
 
 /*
 |--------------------------------------------------------------------------
-| Rutas públicas (no requieren autenticación)
+| Rutas públicas y redirección de inicio
 |--------------------------------------------------------------------------
 */
 
+Route::get('/', function () {
+    if (auth()->check()) {
+        // Si ya está autenticado, redirigir según rol
+        return auth()->user()->isAdmin() 
+            ? redirect()->route('usuarios.index')
+            : redirect()->route('bienes.index');
+    }
+    // Si no está autenticado, mostrar login
+    return redirect()->route('login');
+});
+
 Route::middleware('guest')->group(function () {
-    Route::get('/', [AuthController::class, 'showLoginForm'])->name('login');
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
 });
