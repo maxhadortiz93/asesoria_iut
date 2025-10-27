@@ -21,11 +21,19 @@ class Usuario extends Authenticatable
         'rol_id',
         'cedula',
         'nombre',
+        'apellido',
         'correo',
         'hash_password',
         'activo',
         'is_admin',
     ];
+
+    protected $appends = ['nombre_completo'];
+
+    public function getNombreCompletoAttribute()
+    {
+        return trim($this->nombre . ' ' . $this->apellido);
+    }
 
     /**
      * Atributos ocultos en serializaciones.

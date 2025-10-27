@@ -51,7 +51,8 @@ class UsuarioController extends Controller
             [
                 'rol_id'        => ['required', 'exists:roles,id'],
                 'cedula'        => ['required', 'string', 'max:20', 'unique:usuarios,cedula', 'regex:/^V-\d{2}\.\d{3}\.\d{3}$/'],
-                'nombre'        => ['required', 'string', 'max:255'],
+                'nombre'        => ['required', 'string', 'max:150'],
+                'apellido'      => ['required', 'string', 'max:150'],
                 'correo'        => ['required', 'email', 'max:255', 'unique:usuarios,correo'],
                 'hash_password' => ['required', 'string', 'min:8'],
                 'activo'        => ['boolean'],
@@ -61,6 +62,7 @@ class UsuarioController extends Controller
                 'cedula.regex' => 'La cédula debe tener el formato V-XX.XXX.XXX',
                 'cedula.unique' => 'Esta cédula ya está registrada',
                 'correo.unique' => 'Este correo ya está registrado',
+                'apellido.required' => 'El apellido es requerido',
             ]
         );
         
@@ -118,7 +120,8 @@ class UsuarioController extends Controller
                 'sometimes', 'string', 'max:20',
                 Rule::unique('usuarios', 'cedula')->ignore($usuario->id),
             ],
-            'nombre'        => ['sometimes', 'string', 'max:255'],
+            'nombre'        => ['sometimes', 'string', 'max:150'],
+            'apellido'      => ['sometimes', 'string', 'max:150'],
             'correo'        => [
                 'sometimes', 'email', 'max:255',
                 Rule::unique('usuarios', 'correo')->ignore($usuario->id),

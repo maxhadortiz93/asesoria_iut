@@ -40,14 +40,26 @@
                 <p id="cedula-error" class="text-sm text-red-600 mt-1" style="display:none;"></p>
             </div>
 
-            <div>
-                <label for="nombre" class="block text-sm font-medium text-gray-700">Nombre</label>
-                <input type="text" name="nombre" id="nombre" value="{{ old('nombre') }}" 
-                       class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                       required>
-                @error('nombre')
-                    <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                @enderror
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="nombre" class="block text-sm font-medium text-gray-700">Nombre</label>
+                    <input type="text" name="nombre" id="nombre" value="{{ old('nombre') }}" 
+                           class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                           required>
+                    @error('nombre')
+                        <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="apellido" class="block text-sm font-medium text-gray-700">Apellido</label>
+                    <input type="text" name="apellido" id="apellido" value="{{ old('apellido') }}" 
+                           class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                           required>
+                    @error('apellido')
+                        <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
             </div>
 
             <div>
@@ -265,10 +277,12 @@
     function validarFormulario() {
         const cedula = cedulaInput.value.trim();
         const nombreInput = document.getElementById('nombre');
+        const apellidoInput = document.getElementById('apellido');
         const correoInput = document.getElementById('correo');
         const passwordInput = document.getElementById('password');
         
         const nombre = nombreInput.value.trim();
+        const apellido = apellidoInput.value.trim();
         const correo = correoInput.value.trim();
         const password = passwordInput.value.trim();
         
@@ -276,9 +290,10 @@
         const cedulaValida = /^V-\d{2}\.\d{3}\.\d{3}$/.test(cedula);
         const correoValido = correoInput.checkValidity() && correo.length > 0;
         const nombreValido = nombre.length > 0;
+        const apellidoValido = apellido.length > 0;
         const passwordValido = password.length >= 8;
         
-        const formularioValido = nombreValido && correoValido && passwordValido && cedulaValida;
+        const formularioValido = nombreValido && apellidoValido && correoValido && passwordValido && cedulaValida;
         
         guardarBtn.disabled = !formularioValido;
     }

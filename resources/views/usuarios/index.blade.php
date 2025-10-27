@@ -15,7 +15,7 @@
         <thead class="bg-gray-100 border-b">
             <tr>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Cédula</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Nombre</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Nombre y Apellido</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Correo</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Rol</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Tipo</th>
@@ -27,7 +27,7 @@
             @forelse($usuarios as $usuario)
                 <tr class="border-b hover:bg-gray-50">
                     <td class="px-6 py-4 text-sm text-gray-900">{{ $usuario->cedula }}</td>
-                    <td class="px-6 py-4 text-sm text-gray-900">{{ $usuario->nombre }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">{{ $usuario->nombre_completo }}</td>
                     <td class="px-6 py-4 text-sm text-gray-900">{{ $usuario->correo }}</td>
                     <td class="px-6 py-4 text-sm text-gray-900">{{ $usuario->rol->nombre ?? 'N/A' }}</td>
                     <td class="px-6 py-4 text-sm">
