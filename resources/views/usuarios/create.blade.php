@@ -45,7 +45,9 @@
                     <label for="nombre" class="block text-sm font-medium text-gray-700">Nombre</label>
                     <input type="text" name="nombre" id="nombre" value="{{ old('nombre') }}" 
                            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                           placeholder="Ej: Juan"
                            required>
+                    <p id="nombre-error" class="text-sm text-red-600 mt-1" style="display:none;"></p>
                     @error('nombre')
                         <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                     @enderror
@@ -55,7 +57,9 @@
                     <label for="apellido" class="block text-sm font-medium text-gray-700">Apellido</label>
                     <input type="text" name="apellido" id="apellido" value="{{ old('apellido') }}" 
                            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                           placeholder="Ej: Pérez"
                            required>
+                    <p id="apellido-error" class="text-sm text-red-600 mt-1" style="display:none;"></p>
                     @error('apellido')
                         <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                     @enderror
@@ -68,6 +72,7 @@
                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                        placeholder="usuario@ejemplo.com"
                        required>
+                <p id="correo-error" class="text-sm text-red-600 mt-1" style="display:none;"></p>
                 @error('correo')
                     <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                 @enderror
@@ -77,10 +82,12 @@
             <input type="hidden" name="rol_id" id="rol_id" value="2">
 
             <div>
-                <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
+                <label for="password" class="block text-sm font-medium text-gray-700">Contraseña (mínimo 8 caracteres)</label>
                 <input type="password" name="hash_password" id="password" 
                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                       placeholder="••••••••"
                        required>
+                <p id="password-error" class="text-sm text-red-600 mt-1" style="display:none;"></p>
                 @error('hash_password')
                     <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                 @enderror
@@ -127,7 +134,7 @@
             </div>
 
             <div class="flex gap-4">
-                <button type="submit" id="guardar-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                <button type="submit" id="guardar-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
                     Guardar
                 </button>
                 <a href="{{ route('usuarios.index') }}" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400">
@@ -270,66 +277,172 @@
         }
     }
 
-    // Habilitar botón guardar solo si todos los campos son válidos
-    const formInputs = document.querySelectorAll('form input[required], form select[required]');
+    // Elementos de entrada
+    const nombreInput = document.getElementById('nombre');
+    const apellidoInput = document.getElementById('apellido');
+    const correoInput = document.getElementById('correo');
+    const passwordInput = document.getElementById('password');
     const guardarBtn = document.getElementById('guardar-btn');
 
-    function validarFormulario() {
-        const cedula = cedulaInput.value.trim();
-        const nombreInput = document.getElementById('nombre');
-        const apellidoInput = document.getElementById('apellido');
-        const correoInput = document.getElementById('correo');
-        const passwordInput = document.getElementById('password');
-        
+    // Elementos de error
+    const cedulaErrorEl = document.getElementById('cedula-error');
+    const nombreErrorEl = document.getElementById('nombre-error');
+    const apellidoErrorEl = document.getElementById('apellido-error');
+    const correoErrorEl = document.getElementById('correo-error');
+    const passwordErrorEl = document.getElementById('password-error');
+
+    // Funciones de validación individual
+    function validarNombre() {
         const nombre = nombreInput.value.trim();
+        const valido = nombre.length > 0;
+        if (!valido && nombreInput.value !== '') {
+            nombreErrorEl.textContent = 'El nombre es requerido';
+            nombreErrorEl.style.display = 'block';
+        } else {
+            nombreErrorEl.style.display = 'none';
+        }
+        return valido;
+    }
+
+    function validarApellido() {
         const apellido = apellidoInput.value.trim();
+        const valido = apellido.length > 0;
+        if (!valido && apellidoInput.value !== '') {
+            apellidoErrorEl.textContent = 'El apellido es requerido';
+            apellidoErrorEl.style.display = 'block';
+        } else {
+            apellidoErrorEl.style.display = 'none';
+        }
+        return valido;
+    }
+
+    function validarCorreo() {
         const correo = correoInput.value.trim();
-        const password = passwordInput.value.trim();
+        const esValido = correoInput.checkValidity() && correo.length > 0;
         
-        // Validaciones
-        const cedulaValida = /^V-\d{2}\.\d{3}\.\d{3}$/.test(cedula);
-        const correoValido = correoInput.checkValidity() && correo.length > 0;
-        const nombreValido = nombre.length > 0;
-        const apellidoValido = apellido.length > 0;
-        const passwordValido = password.length >= 8;
-        
-        const formularioValido = nombreValido && apellidoValido && correoValido && passwordValido && cedulaValida;
-        
-        guardarBtn.disabled = !formularioValido;
+        if (correo.length > 0 && !esValido) {
+            correoErrorEl.textContent = 'Correo inválido. Usa formato: usuario@ejemplo.com';
+            correoErrorEl.style.display = 'block';
+        } else {
+            correoErrorEl.style.display = 'none';
+        }
+        return esValido;
     }
 
-    // Validar al escribir
-    formInputs.forEach(input => {
-        input.addEventListener('input', validarFormulario);
-        input.addEventListener('change', validarFormulario);
-    });
-
-    // También validar con el checkbox de activo y radio buttons
-    const activoCheckbox = document.getElementById('activo');
-    if (activoCheckbox) {
-        activoCheckbox.addEventListener('change', validarFormulario);
+    function validarPassword() {
+        const password = passwordInput.value;
+        const esValido = password.length >= 8;
+        
+        if (password.length > 0 && !esValido) {
+            passwordErrorEl.textContent = `La contraseña debe tener al menos 8 caracteres (${password.length}/8)`;
+            passwordErrorEl.style.display = 'block';
+        } else {
+            passwordErrorEl.style.display = 'none';
+        }
+        return esValido;
     }
 
-    userTypeRadios.forEach(radio => {
-        radio.addEventListener('change', validarFormulario);
-    });
+    // Eventos para validación en tiempo real
+    nombreInput.addEventListener('input', validarNombre);
+    nombreInput.addEventListener('blur', validarNombre);
 
-    // Disparar validación inicial después de cargar
-    setTimeout(() => {
-        validarFormulario();
-    }, 100);
+    apellidoInput.addEventListener('input', validarApellido);
+    apellidoInput.addEventListener('blur', validarApellido);
+
+    correoInput.addEventListener('input', validarCorreo);
+    correoInput.addEventListener('blur', validarCorreo);
+
+    passwordInput.addEventListener('input', validarPassword);
+    passwordInput.addEventListener('blur', validarPassword);
+
+    cedulaInput.addEventListener('input', function() {
+        if (cedulaInput.value.trim() !== '' && !cedulaErrorEl) {
+            validarCedula(cedulaInput.value);
+        }
+    });
+    cedulaInput.addEventListener('blur', function() {
+        validarCedula(cedulaInput.value);
+    });
 
     // Envío del formulario
     document.querySelector('form').addEventListener('submit', async function(e) {
         e.preventDefault();
 
+        // Validar todos los campos
         const cedula = cedulaInput.value.trim();
-        if (!validarCedula(cedula)) {
-            mostrarModal('error', 'Cédula Inválida', 'El formato de la cédula no es válido. Debe ser: V-XX.XXX.XXX');
+        const nombre = nombreInput.value.trim();
+        const apellido = apellidoInput.value.trim();
+        const correo = correoInput.value.trim();
+        const password = passwordInput.value;
+
+        // Mostrar errores si existen
+        let erroresEncontrados = [];
+
+        if (!cedula || cedula === 'V-') {
+            cedulaErrorEl.textContent = 'La cédula es requerida';
+            cedulaErrorEl.style.display = 'block';
+            erroresEncontrados.push('cedula');
+        } else if (!/^V-\d{2}\.\d{3}\.\d{3}$/.test(cedula)) {
+            cedulaErrorEl.textContent = 'Formato de cédula inválido. Debe ser: V-XX.XXX.XXX';
+            cedulaErrorEl.style.display = 'block';
+            erroresEncontrados.push('cedula');
+        } else {
+            cedulaErrorEl.style.display = 'none';
+        }
+
+        if (!nombre) {
+            nombreErrorEl.textContent = 'El nombre es requerido';
+            nombreErrorEl.style.display = 'block';
+            erroresEncontrados.push('nombre');
+        } else {
+            nombreErrorEl.style.display = 'none';
+        }
+
+        if (!apellido) {
+            apellidoErrorEl.textContent = 'El apellido es requerido';
+            apellidoErrorEl.style.display = 'block';
+            erroresEncontrados.push('apellido');
+        } else {
+            apellidoErrorEl.style.display = 'none';
+        }
+
+        if (!correo) {
+            correoErrorEl.textContent = 'El correo es requerido';
+            correoErrorEl.style.display = 'block';
+            erroresEncontrados.push('correo');
+        } else if (!correoInput.checkValidity()) {
+            correoErrorEl.textContent = 'Correo inválido. Usa formato: usuario@ejemplo.com';
+            correoErrorEl.style.display = 'block';
+            erroresEncontrados.push('correo');
+        } else {
+            correoErrorEl.style.display = 'none';
+        }
+
+        if (!password) {
+            passwordErrorEl.textContent = 'La contraseña es requerida';
+            passwordErrorEl.style.display = 'block';
+            erroresEncontrados.push('password');
+        } else if (password.length < 8) {
+            passwordErrorEl.textContent = `La contraseña debe tener al menos 8 caracteres (${password.length}/8)`;
+            passwordErrorEl.style.display = 'block';
+            erroresEncontrados.push('password');
+        } else {
+            passwordErrorEl.style.display = 'none';
+        }
+
+        // Si hay errores, mostrar modal y no enviar
+        if (erroresEncontrados.length > 0) {
+            mostrarModal('error', '⚠ Errores en el Formulario', 'Por favor corrige los errores en rojo e intenta de nuevo.');
+            // Enfocar el primer campo con error
+            if (erroresEncontrados[0] === 'cedula') cedulaInput.focus();
+            else if (erroresEncontrados[0] === 'nombre') nombreInput.focus();
+            else if (erroresEncontrados[0] === 'apellido') apellidoInput.focus();
+            else if (erroresEncontrados[0] === 'correo') correoInput.focus();
+            else if (erroresEncontrados[0] === 'password') passwordInput.focus();
             return;
         }
 
-        // Mostrar modal de carga
+        // Si todo está bien, mostrar modal de carga y enviar
         mostrarModal('loading', 'Procesando...', 'Por favor espera mientras registramos al usuario.');
 
         try {
