@@ -98,19 +98,19 @@
                     <h3 class="text-sm font-semibold text-gray-800 mb-3">Permisos del Usuario</h3>
                     <div class="space-y-3">
                         <div class="flex items-start">
-                            <input type="radio" name="user_type" id="user_type_normal" value="normal" 
+                            <input type="radio" name="user_type" id="user_type_admin" value="admin" 
                                    class="rounded-full border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500 mt-1"
-                                   {{ old('user_type') !== 'admin' ? 'checked' : '' }}>
-                            <label for="user_type_normal" class="ml-3 block text-sm font-medium text-gray-700">
+                                   {{ old('user_type') === 'admin' ? 'checked' : '' }}>
+                            <label for="user_type_admin" class="ml-3 block text-sm font-medium text-gray-700">
                                 <span class="font-semibold">Usuario Administrador</span>
                                 <p class="text-xs text-gray-600 font-normal mt-1">Puede gestionar usuarios y crear otros administradores. Tiene permisos totales del sistema.</p>
                             </label>
                         </div>
                         <div class="flex items-start">
-                            <input type="radio" name="user_type" id="user_type_data_entry" value="data_entry" 
+                            <input type="radio" name="user_type" id="user_type_normal" value="normal" 
                                    class="rounded-full border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500 mt-1"
-                                   {{ old('user_type') === 'data_entry' ? 'checked' : '' }}>
-                            <label for="user_type_data_entry" class="ml-3 block text-sm font-medium text-gray-700">
+                                   {{ old('user_type') !== 'admin' ? 'checked' : '' }}>
+                            <label for="user_type_normal" class="ml-3 block text-sm font-medium text-gray-700">
                                 <span class="font-semibold">Usuario Normal</span>
                                 <p class="text-xs text-gray-600 font-normal mt-1">Puede crear organismos, unidades, dependencias, bienes y movimientos. Sin permisos de gestión de usuarios.</p>
                             </label>
@@ -253,11 +253,11 @@
 
     userTypeRadios.forEach(radio => {
         radio.addEventListener('change', function() {
-            if (this.value === 'normal') {
+            if (this.value === 'admin') {
                 // Usuario Administrador
                 isAdminInput.value = '1';
                 rolIdInput.value = '1'; // ID del rol Administrador
-            } else if (this.value === 'data_entry') {
+            } else if (this.value === 'normal') {
                 // Usuario Normal (Data Entry)
                 isAdminInput.value = '0';
                 rolIdInput.value = '2'; // ID del rol Usuario Normal
@@ -268,10 +268,10 @@
     // Inicializar el valor según selección inicial
     const selectedUserType = document.querySelector('input[name="user_type"]:checked');
     if (selectedUserType && isAdminInput) {
-        if (selectedUserType.value === 'normal') {
+        if (selectedUserType.value === 'admin') {
             isAdminInput.value = '1';
             rolIdInput.value = '1';
-        } else if (selectedUserType.value === 'data_entry') {
+        } else if (selectedUserType.value === 'normal') {
             isAdminInput.value = '0';
             rolIdInput.value = '2';
         }
