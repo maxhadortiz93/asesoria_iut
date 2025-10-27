@@ -54,6 +54,7 @@
                 <label for="correo" class="block text-sm font-medium text-gray-700">Correo</label>
                 <input type="email" name="correo" id="correo" value="{{ old('correo') }}" 
                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                       placeholder="usuario@ejemplo.com"
                        required>
                 @error('correo')
                     <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
@@ -263,12 +264,21 @@
 
     function validarFormulario() {
         const cedula = cedulaInput.value.trim();
-        const nombre = document.getElementById('nombre').value.trim();
-        const correo = document.getElementById('correo').value.trim();
-        const password = document.getElementById('password').value.trim();
+        const nombreInput = document.getElementById('nombre');
+        const correoInput = document.getElementById('correo');
+        const passwordInput = document.getElementById('password');
         
+        const nombre = nombreInput.value.trim();
+        const correo = correoInput.value.trim();
+        const password = passwordInput.value.trim();
+        
+        // Validaciones
         const cedulaValida = /^V-\d{2}\.\d{3}\.\d{3}$/.test(cedula);
-        const formularioValido = nombre.length > 0 && correo.length > 0 && password.length >= 8 && cedulaValida;
+        const correoValido = correoInput.checkValidity() && correo.length > 0;
+        const nombreValido = nombre.length > 0;
+        const passwordValido = password.length >= 8;
+        
+        const formularioValido = nombreValido && correoValido && passwordValido && cedulaValida;
         
         guardarBtn.disabled = !formularioValido;
     }
@@ -278,6 +288,21 @@
         input.addEventListener('input', validarFormulario);
         input.addEventListener('change', validarFormulario);
     });
+
+    // También validar con el checkbox de activo y radio buttons
+    const activoCheckbox = document.getElementById('activo');
+    if (activoCheckbox) {
+        activoCheckbox.addEventListener('change', validarFormulario);
+    }
+
+    userTypeRadios.forEach(radio => {
+        radio.addEventListener('change', validarFormulario);
+    });
+
+    // Disparar validación inicial después de cargar
+    setTimeout(() => {
+        validarFormulario();
+    }, 100);
 
     // Envío del formulario
     document.querySelector('form').addEventListener('submit', async function(e) {
