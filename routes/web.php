@@ -18,23 +18,19 @@ use App\Http\Controllers\UsuarioController;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', function () {
-    if (auth()->check()) {
-        // Administrador va a usuarios, usuario normal va a bienes
-        return auth()->user()->isAdmin() 
-            ? redirect()->route('usuarios.index')
-            : redirect()->route('bienes.index');
-    }
-    return redirect()->route('login');
-});
-
-
 Route::middleware('guest')->group(function () {
+    Route::get('/', [AuthController::class, 'showLoginForm'])->name('login');
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
 });
 
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+/*
+|--------------------------------------------------------------------------
+| Rutas de salida de sesión (requieren autenticación)
+|--------------------------------------------------------------------------
+*/
+
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
 /*
 |--------------------------------------------------------------------------
