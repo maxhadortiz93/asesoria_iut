@@ -16,16 +16,19 @@ class RedirigirPorRol
             return redirect('/login');
         }
 
-        switch ($usuario->rol_id) {
-            case 1:
-                return $next($request);
+        $routeName = $request->route()?->getName() ?? '';
 
-            case 2:
-                return redirect()->route('bienes.index');
-
-            default:
-                return redirect('/login')->with('error', 'Rol no autorizado');
+        // Administrador: acceso total
+        if ($usuario->isAdmin()) {
+            return $next($request);
         }
+
+        // Usuario normal: restringir solo rutas de gestión de usuarios
+        if (str_starts_with($routeName, 'usuarios.')) {
+            return redirect()->route('bienes.index')->with('error', 'No tienes permisos para acceder a Usuarios');
+        }
+
+        return $next($request);
     }
 }
 
