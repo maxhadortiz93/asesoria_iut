@@ -21,11 +21,6 @@
                 @auth
                     <div class="text-sm text-blue-100">
                         <span class="font-semibold">{{ auth()->user()->nombre_completo ?? auth()->user()->nombre }}</span>
-                        @if(auth()->user()->isAdmin())
-                            <span class="ml-2 inline-flex px-2 py-0.5 text-xs font-semibold text-purple-100 bg-purple-600/40 rounded-full">Administrador</span>
-                        @else
-                            <span class="ml-2 inline-flex px-2 py-0.5 text-xs font-semibold text-blue-100 bg-blue-600/40 rounded-full">Usuario</span>
-                        @endif
                     </div>
                 @endauth
                 <form method="POST" action="{{ route('logout') }}" style="display: inline;">
