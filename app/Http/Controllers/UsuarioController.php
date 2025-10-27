@@ -80,6 +80,11 @@ class UsuarioController extends Controller
             ], 403);
         }
 
+        // Forzar coherencia: si rol es Administrador => is_admin = true; caso contrario false
+        if ($rolAdmin) {
+            $validated['is_admin'] = ((int)$validated['rol_id'] === (int)$rolAdmin->id);
+        }
+
         $validated['hash_password'] = Hash::make($validated['hash_password']);
 
         $usuario = Usuario::create($validated);
@@ -134,6 +139,12 @@ class UsuarioController extends Controller
         // Solo administradores pueden asignar permisos de administrador
         if (isset($validated['is_admin']) && $validated['is_admin'] && !auth()->user()->isAdmin()) {
             return abort(403, 'Solo administradores pueden asignar permisos de administrador.');
+        }
+
+        // Forzar coherencia de is_admin con rol seleccionado
+        $rolAdmin = \App\Models\Rol::where('nombre', 'Administrador')->first();
+        if ($rolAdmin && isset($validated['rol_id'])) {
+            $validated['is_admin'] = ((int)$validated['rol_id'] === (int)$rolAdmin->id);
         }
 
         if (!empty($validated['hash_password'])) {

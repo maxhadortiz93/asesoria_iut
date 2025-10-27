@@ -117,8 +117,8 @@
                         </div>
                     </div>
                 </div>
-                <!-- Campo oculto para enviar is_admin -->
-                <input type="hidden" name="is_admin" id="is_admin" value="1">
+                <!-- Campo oculto para enviar is_admin (por defecto 0: usuario normal) -->
+                <input type="hidden" name="is_admin" id="is_admin" value="0">
             @endif
 
             <div>
