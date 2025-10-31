@@ -19,6 +19,10 @@ use App\Http\Controllers\UsuarioController;
 */
 
 Route::get('/', function () {
+    return view('welcome');
+});
+
+Route::get('/dashboard', function () {
     if (auth()->check()) {
         // Si ya está autenticado, redirigir según rol
         return auth()->user()->isAdmin() 
@@ -27,7 +31,7 @@ Route::get('/', function () {
     }
     // Si no está autenticado, mostrar login
     return redirect()->route('login');
-});
+})->name('dashboard');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');

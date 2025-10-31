@@ -100,13 +100,26 @@ class UsuarioController extends Controller
     }
 
     /**
+     * Mostrar formulario para editar un usuario.
+     */
+    public function edit(Usuario $usuario)
+    {
+        $roles = \App\Models\Rol::all();
+        return view('usuarios.edit', compact('usuario', 'roles'));
+    }
+
+    /**
      * Mostrar detalles de un usuario.
      */
     public function show(Usuario $usuario)
     {
         $usuario->load(['rol', 'reportes', 'movimientos']);
 
-        return response()->json($usuario);
+        if (request()->expectsJson()) {
+            return response()->json($usuario);
+        }
+
+        return view('usuarios.show', compact('usuario'));
     }
 
     /**
@@ -153,7 +166,11 @@ class UsuarioController extends Controller
 
         $usuario->update($validated);
 
-        return response()->json($usuario);
+        if ($request->expectsJson()) {
+            return response()->json($usuario);
+        }
+
+        return redirect()->route('usuarios.show', $usuario->id)->with('success', 'Usuario actualizado correctamente');
     }
 
     /**

@@ -22,11 +22,13 @@
                     <div class="text-sm text-blue-100">
                         <span class="font-semibold">{{ auth()->user()->nombre_completo ?? auth()->user()->nombre }}</span>
                     </div>
+                    <form method="POST" action="{{ route('logout') }}" style="display: inline;">
+                        @csrf
+                        <button type="submit" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded">Cerrar sesión</button>
+                    </form>
+                @else
+                    <a href="{{ route('login') }}" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded">Iniciar sesión</a>
                 @endauth
-                <form method="POST" action="{{ route('logout') }}" style="display: inline;">
-                    @csrf
-                    <button type="submit" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded">Cerrar sesión</button>
-                </form>
             </div>
         </div>
     </div>
